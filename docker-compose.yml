@@ -35,7 +35,6 @@ services:
     <<: *byceps-base
     environment:
       <<: *byceps-base-env
-      BYCEPS_APPS_CONFIG: /home/byceps/config/apps.toml
     networks:
       - byceps
       - proxy
