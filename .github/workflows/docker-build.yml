@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        system: [ byceps, nginx ]
+        system: [ BYCEPS, NGINX ]
 
     steps:
       - uses: actions/checkout@v2
@@ -48,7 +48,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: Dockerfile
+          file: Dockerfile-${{ matrix.system }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
