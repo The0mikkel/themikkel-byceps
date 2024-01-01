@@ -1,0 +1,8 @@
+FROM ghcr.io/the0mikkel/byceps:latest
+
+# Add static files
+ADD config /home/byceps/config
+ADD data /home/byceps/data
+ADD sites /home/byceps/sites
+
+ENV BYCEPS_APPS_CONFIG=/home/byceps/config/apps.toml

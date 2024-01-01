@@ -1,0 +1,92 @@
+version: "3.9"
+
+x-byceps-base: &byceps-base
+  image: "${DOCKER_ORG:-ghcr.io/byceps}/the0mikkel-byceps:${DOCKER_VERSION:-latest}"
+  volumes:
+    - byceps-data:/home/byceps/data
+  depends_on:
+    - db
+    - redis
+
+x-byceps-base-env: &byceps-base-env
+    REDIS_URL: "redis://redis/0"
+    SECRET_KEY: /run/secrets/secret_key
+    SQLALCHEMY_DATABASE_URI: "postgresql+psycopg://${DB_USER:-byceps}:${DB_PASSWORD:-byceps}@db/byceps"
+
+services:
+
+  db:
+    image: "postgres:${DB_IMAGE:-16}"
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-byceps}
+      POSTGRES_USER: ${DB_USER:-byceps}
+    networks:
+      - byceps
+
+  redis:
+    image: "redis:7"
+    networks:
+      - byceps
+
+  byceps:
+    <<: *byceps-base
+    environment:
+      <<: *byceps-base-env
+      BYCEPS_APPS_CONFIG: /home/byceps/config/apps.toml
+    networks:
+      - byceps
+      - proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${HEALTH_CHECK_HOSTNAME:-byceps-admin.localhost}t:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  byceps-worker:
+    <<: *byceps-base
+    environment:
+      <<: *byceps-base-env
+      APP_MODE: worker
+    networks:
+      - byceps
+    command: ./worker.py
+
+  web:
+    image: "${DOCKER_ORG:-ghcr.io/byceps}/the0mikkel-byceps-nginx:${DOCKER_VERSION:-latest}"
+    volumes:
+      # Static data files, not hosted through Byceps
+      - byceps-data:/var/www/byceps/data:ro
+    depends_on:
+      - byceps
+    environment:
+      # The hostnames that the web server should listen on and return the admin
+      SERVER_NAME_ADMIN: ${ADMIN_HOSTNAMES:-byceps-admin.localhost}
+      # THe hostnames that the web server should listen on and return the site
+      SERVER_NAME_SITE: ${SITE_HOSTNAMES:-byceps-site.localhost}
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${HEALTH_CHECK_HOSTNAME:-byceps-admin.localhost}t:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+secrets:
+  secret_key:
+    # To generate a secret key file, run:
+    # `docker compose run --rm byceps-admin byceps generate-secret-key > ./secret_key.txt`
+    file: ./secret_key.txt
+
+volumes:
+  byceps-data:
+  db-data:
+
+networks:
+  proxy:
+  byceps:

@@ -1,0 +1,5 @@
+FROM ghcr.io/the0mikkel/byceps-nginx:latest
+
+# Add static files
+ADD data /var/www/byceps/data
+ADD sites /var/www/byceps/sites
