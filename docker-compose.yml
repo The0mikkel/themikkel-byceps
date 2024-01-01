@@ -1,7 +1,7 @@
 version: "3.9"
 
 x-byceps-base: &byceps-base
-  image: "${DOCKER_ORG:-ghcr.io/byceps}/the0mikkel-byceps:${DOCKER_VERSION:-latest}"
+  image: "${DOCKER_ORG:-ghcr.io/the0mikkel}/themikkel-byceps:${DOCKER_VERSION:-latest}"
   volumes:
     - byceps-data:/home/byceps/data
   depends_on:
@@ -54,7 +54,7 @@ services:
     command: ./worker.py
 
   web:
-    image: "${DOCKER_ORG:-ghcr.io/byceps}/the0mikkel-byceps-nginx:${DOCKER_VERSION:-latest}"
+    image: "${DOCKER_ORG:-ghcr.io/the0mikkel}/themikkel-byceps-nginx:${DOCKER_VERSION:-latest}"
     volumes:
       # Static data files, not hosted through Byceps
       - byceps-data:/var/www/byceps/data:ro
