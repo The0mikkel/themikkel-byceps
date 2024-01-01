@@ -5,4 +5,4 @@ ADD config /home/byceps/config
 ADD data /home/byceps/data
 ADD sites /home/byceps/sites
 
-ENV BYCEPS_APPS_CONFIG=/home/byceps/config/app.toml
+ENV BYCEPS_APPS_CONFIG=/home/byceps/config/apps.toml

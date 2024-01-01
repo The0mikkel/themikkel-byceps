@@ -1,0 +1,13 @@
+[[app_mounts]]
+server_name = "byceps-admin.localhost"
+mode = "admin"
+
+[[app_mounts]]
+server_name = "byceps-api.localhost"
+mode = "api"
+
+[[app_mounts]]
+server_name = "byceps-site1.localhost"
+mode = "site"
+site_id = "cozylan"
+
